@@ -1,7 +1,6 @@
 #import "SocialSharePlugin.h"
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import <FBSDKShareKit/FBSDKShareKit.h>
-#import <TwitterKit/TWTRKit.h>
 
 @implementation SocialSharePlugin {
     FlutterMethodChannel* _channel;
@@ -43,7 +42,7 @@
                  openURL:url
        sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]
               annotation:options[UIApplicationOpenURLOptionsAnnotationKey]];
-  return handled || [[Twitter sharedInstance] application:application openURL:url options:options];
+  return handled;
 }
 
  - (BOOL)application:(UIApplication *)application
@@ -95,7 +94,7 @@
   } else if([@"shareToTwitterLink" isEqualToString:call.method]) {
       NSURL *twitterURL = [NSURL URLWithString:@"twitter://"];
       if([[UIApplication sharedApplication] canOpenURL:twitterURL]) {
-          [self twitterShare:call.arguments[@"text"] url:call.arguments[@"url"]];
+//          [self twitterShare:call.arguments[@"text"] url:call.arguments[@"url"]];
           result(nil);
       } else {
           NSString *fbLink = @"itms-apps://itunes.apple.com/us/app/apple-store/id333903271";
@@ -138,23 +137,23 @@
     };
 }
 
-- (void)twitterShare:(NSString*)text
-                 url:(NSString*)url {
-    UIViewController* controller = [UIApplication sharedApplication].delegate.window.rootViewController;
-    TWTRComposer *composer = [[TWTRComposer alloc] init];
-    [composer setText:text];
-    [composer setURL:[NSURL URLWithString:url]];
-    [composer showFromViewController:controller completion:^(TWTRComposerResult result) {
-        if (result == TWTRComposerResultCancelled) {
-            [self->_channel invokeMethod:@"onCancel" arguments:nil];
-            NSLog(@"Tweet composition cancelled");
-        }
-        else {
-            [self->_channel invokeMethod:@"onSuccess" arguments:nil];
-            NSLog(@"Sending Tweet!");
-        }
-    }];
-}
+// - (void)twitterShare:(NSString*)text
+//                  url:(NSString*)url {
+//     UIViewController* controller = [UIApplication sharedApplication].delegate.window.rootViewController;
+//     TWTRComposer *composer = [[TWTRComposer alloc] init];
+//     [composer setText:text];
+//     [composer setURL:[NSURL URLWithString:url]];
+//     [composer showFromViewController:controller completion:^(TWTRComposerResult result) {
+//         if (result == TWTRComposerResultCancelled) {
+//             [self->_channel invokeMethod:@"onCancel" arguments:nil];
+//             NSLog(@"Tweet composition cancelled");
+//         }
+//         else {
+//             [self->_channel invokeMethod:@"onSuccess" arguments:nil];
+//             NSLog(@"Sending Tweet!");
+//         }
+//     }];
+// }
 
 - (void)sharer:(id<FBSDKSharing>)sharer didCompleteWithResults:(NSDictionary *)results{
     [_channel invokeMethod:@"onSuccess" arguments:nil];
